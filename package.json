@@ -1,0 +1,29 @@
+{
+  "name": "matchjs",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Pattern matching for javascript",
+  "main": "lib.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhighs/matchjs.git"
+  },
+  "keywords": [
+    "matchjs",
+    "match",
+    "pattern",
+    "pattern-matching"
+  ],
+  "author": "Roberto Montalti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rhighs/matchjs/issues"
+  },
+  "homepage": "https://github.com/rhighs/matchjs#readme"
+}
