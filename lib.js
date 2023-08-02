@@ -47,6 +47,21 @@ const hasMatchingStructure = (testStruct, againstStruct) => {
   return againstStruct === testStruct
 }
 
+/**
+ * Resolves the matching structure between two given objects or arrays.
+ * 
+ * If both patternStruct and againstStruct are arrays, it recursively searches for
+ * matching structures and returns an array of resolved matches.
+ * 
+ * If patternStruct and againstStruct are both objects, it returns an object with 
+ * keys from patternStruct mapped to the corresponding values from againstStruct.
+ * 
+ * For all other cases (non-object and non-array), it returns againstStruct as is.
+ * 
+ * @param {Object|Array} patternStruct - The pattern structure to match against.
+ * @param {Object|Array} againstStruct - The structure to check for matching pattern.
+ * @returns {Object|Array} The resolved structure based on the matching pattern.
+ */
 const resolveMatchingStructure = (patternStruct, againstStruct) => {
   if (
     typeof patternStruct === 'object' &&
@@ -99,11 +114,43 @@ const includesAllFields = (testObject, againstObject) =>
     includesField(k, v, againstObject)
   )
 
+/**
+ * Checks if the given pattern is a bad array pattern.
+ *
+ * A bad array pattern is defined as an array that meets the following criteria:
+ * 1. Is of type Array.
+ * 2. Has a length greater than 1.
+ * 3. Contains at least one element that is an instance of Object (excluding arrays).
+ *
+ * @param {Array} pattern - The pattern to check.
+ * @returns {boolean} Returns true if the pattern is a bad array pattern, otherwise false.
+ *
+ * @example
+ * const pattern1 = [1, 2, 3]; // Not a bad array pattern
+ * const pattern2 = [{ id: 1 }, { name: 'John' }]; // Bad array pattern
+ * const result = isBadArrayPattern(pattern2);
+ * // Output: true
+ */
 const isBadArrayPattern = pattern =>
   ofClass(Array, pattern) &&
   pattern.length > 1 &&
   pattern.some(o => o instanceof Object)
 
+/**
+ * Checks if the given pattern is a bad pattern.
+ *
+ * A bad pattern is defined as an object that contains values that are also bad patterns,
+ * or it is a bad array pattern (as defined by isBadArrayPattern function).
+ *
+ * @param {Object|Array} pattern - The pattern to check.
+ * @returns {boolean} Returns true if the pattern is a bad pattern, otherwise false.
+ *
+ * @example
+ * const pattern1 = { id: 1, name: 'John' }; // Not a bad pattern
+ * const pattern2 = { id: 1, data: [{ name: 'Smith' }, 12] }; // Bad pattern
+ * const result = isBadPattern(pattern2);
+ * // Output: true
+ */
 const isBadPattern = pattern =>
   pattern instanceof Object
     ? Object.values(pattern).some(v => isBadPattern(v))
