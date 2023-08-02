@@ -1,3 +1,5 @@
+class MatchAny {}
+
 /**
  * Checks if an object instance belongs to a particular class.
  * @param {Function|Number|String|Boolean} classDef - The class definition to compare against.
@@ -5,6 +7,8 @@
  * @returns {boolean} - Returns true if the instance belongs to the class; otherwise, false.
  */
 const ofClass = (classDef, instance) => {
+  if (classDef !== null && instance === null) return false
+
   if (typeof classDef === 'function' && typeof instance === 'object') {
     return new classDef().constructor === instance.constructor
   }
@@ -27,10 +31,46 @@ const ofClass = (classDef, instance) => {
 const hasMatchingStructure = (testStruct, againstStruct) => {
   if (ofClass(testStruct, againstStruct)) return true
 
+  if (
+    typeof testStruct === 'object' &&
+    ofClass(Array, testStruct) &&
+    ofClass(Array, againstStruct)
+  ) {
+    return testStruct.every(t =>
+      againstStruct.some(a => hasMatchingStructure(t, a))
+    )
+  }
+
   if (typeof testStruct === 'object' && typeof againstStruct === 'object')
     return includesAllFields(testStruct, againstStruct)
 
   return againstStruct === testStruct
+}
+
+const resolveMatchingStructure = (patternStruct, againstStruct) => {
+  if (
+    typeof patternStruct === 'object' &&
+    ofClass(Array, patternStruct) &&
+    ofClass(Array, againstStruct)
+  ) {
+    const collection = new Set()
+
+    for (const p of patternStruct)
+      for (const a of againstStruct)
+        if (hasMatchingStructure(p, a))
+          collection.add(resolveMatchingStructure(p, a))
+
+    const out = Array.from(collection)
+    return out
+  }
+
+  if (typeof patternStruct === 'object' && typeof againstStruct === 'object')
+    return Object.keys(patternStruct).reduce(
+      (acc, k) => ({ ...acc, [k]: againstStruct[k] }),
+      {}
+    )
+
+  return againstStruct
 }
 
 /**
@@ -44,7 +84,7 @@ const hasMatchingStructure = (testStruct, againstStruct) => {
  * @returns {boolean} - Returns true if the key-value pair is included in the target object; otherwise, false.
  */
 const includesField = (key, value, against) => {
-  if (value === true) return Object.keys(against).includes(key)
+  if (value === MatchAny) return Object.keys(against).includes(key)
   return hasMatchingStructure(value, against[key])
 }
 
@@ -59,6 +99,16 @@ const includesAllFields = (testObject, againstObject) =>
     includesField(k, v, againstObject)
   )
 
+const isBadArrayPattern = pattern =>
+  ofClass(Array, pattern) &&
+  pattern.length > 1 &&
+  pattern.some(o => o instanceof Object)
+
+const isBadPattern = pattern =>
+  pattern instanceof Object
+    ? Object.values(pattern).some(v => isBadPattern(v))
+    : isBadArrayPattern(pattern)
+
 /**
  * Destructures the parameters of the match function.
  * @param  {...any} args - The arguments passed to the match function.
@@ -72,6 +122,11 @@ const destructureMatchParams = (...args) => {
   for (let i = 0; i < args.length; i += 2) {
     const pattern = args[i]
     const expr = args[i + 1]
+
+    if (isBadPattern(pattern))
+      throw new Error(
+        '[match]: cannot use more than entry when matching arrays for objects'
+      )
 
     if (pattern === null) {
       if (defaultExpr !== null)
@@ -112,13 +167,7 @@ const match =
 
       if (hasMatchingStructure(pattern, value)) {
         if (typeof expression === 'function') {
-          const arg =
-            value instanceof Object
-              ? Object.keys(pattern).reduce(
-                  (acc, k) => ({ ...acc, [k]: value[k] }),
-                  {}
-                )
-              : value
+          const arg = resolveMatchingStructure(pattern, value)
           return expression(arg)
         }
 
@@ -131,5 +180,7 @@ const match =
 
     return typeof defaultExpr === 'function' ? defaultExpr(value) : defaultExpr
   }
+
+match.Any = MatchAny
 
 export default match
