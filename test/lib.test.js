@@ -269,8 +269,8 @@ test('match with condition expressions', _ => {
   assert.equal(result, 'foo')
 
   testObject = {
-      name: 'bar',
-      age: 20
+    name: 'bar',
+    age: 20
   }
 
   // prettier-ignore
@@ -291,9 +291,10 @@ test('match for edge cases (null, undefined, empty arrays, empty objects)', _ =>
     [[], 'found []'],
     [{}, 'found {}'],
     [null, 'found null'],
-    [undefined, 'found undefined'],
+    [undefined, 'found undefined']
   ]
 
+  // prettier-ignore
   for (const [value, expected] of results) {
     const result = match(value) (
       [], _ => 'found []',
@@ -305,4 +306,3 @@ test('match for edge cases (null, undefined, empty arrays, empty objects)', _ =>
     assert.equal(result, expected)
   }
 })
-
