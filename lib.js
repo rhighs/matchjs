@@ -1,4 +1,31 @@
+const isNullOrUndefined = v => v === null || v === undefined
+
+/**
+ * Represents a matching pattern that matches for any value
+ */
 class MatchAny {}
+
+/**
+ * Represents a matching pattern Condition used for evaluating expressions against a value.
+ *
+ * @class
+ * @constructor
+ * @param {Function|any} expr - The expression or function to be evaluated against the value.
+ * @param {boolean} isFunc - A boolean flag indicating if the expression is a function.
+ */
+class MatchCond {
+  constructor (expr, isFunc) {
+    this.isFunc = isFunc
+    this.expr = expr
+  }
+
+  eval (value) {
+    if (this.isFunc) {
+      return !!this.expr(value)
+    }
+    return !!this.expr
+  }
+}
 
 /**
  * Checks if an object instance belongs to a particular class.
@@ -7,7 +34,8 @@ class MatchAny {}
  * @returns {boolean} - Returns true if the instance belongs to the class; otherwise, false.
  */
 const ofClass = (classDef, instance) => {
-  if (classDef !== null && instance === null) return false
+  if (classDef !== null && classDef !== undefined && instance === null)
+    return false
 
   if (typeof classDef === 'function' && typeof instance === 'object') {
     return new classDef().constructor === instance.constructor
@@ -31,33 +59,40 @@ const ofClass = (classDef, instance) => {
 const hasMatchingStructure = (testStruct, againstStruct) => {
   if (ofClass(testStruct, againstStruct)) return true
 
-  if (
-    typeof testStruct === 'object' &&
-    ofClass(Array, testStruct) &&
-    ofClass(Array, againstStruct)
-  ) {
+  const testIsArray = ofClass(Array, testStruct)
+  const againstIsArray = ofClass(Array, againstStruct)
+
+  if (typeof testStruct === 'object' && testIsArray && againstIsArray) {
     return testStruct.every(t =>
       againstStruct.some(a => hasMatchingStructure(t, a))
     )
   }
 
-  if (typeof testStruct === 'object' && typeof againstStruct === 'object')
+  if (
+    typeof testStruct === 'object' &&
+    typeof againstStruct === 'object' &&
+    !testIsArray &&
+    !againstIsArray &&
+    !isNullOrUndefined(testStruct) &&
+    !isNullOrUndefined(againstStruct)
+  ) {
     return includesAllFields(testStruct, againstStruct)
+  }
 
   return againstStruct === testStruct
 }
 
 /**
  * Resolves the matching structure between two given objects or arrays.
- * 
+ *
  * If both patternStruct and againstStruct are arrays, it recursively searches for
  * matching structures and returns an array of resolved matches.
- * 
- * If patternStruct and againstStruct are both objects, it returns an object with 
+ *
+ * If patternStruct and againstStruct are both objects, it returns an object with
  * keys from patternStruct mapped to the corresponding values from againstStruct.
- * 
+ *
  * For all other cases (non-object and non-array), it returns againstStruct as is.
- * 
+ *
  * @param {Object|Array} patternStruct - The pattern structure to match against.
  * @param {Object|Array} againstStruct - The structure to check for matching pattern.
  * @returns {Object|Array} The resolved structure based on the matching pattern.
@@ -100,6 +135,7 @@ const resolveMatchingStructure = (patternStruct, againstStruct) => {
  */
 const includesField = (key, value, against) => {
   if (value === MatchAny) return Object.keys(against).includes(key)
+  if (value instanceof MatchCond) return value.eval(against[key])
   return hasMatchingStructure(value, against[key])
 }
 
@@ -199,8 +235,6 @@ const destructureMatchParams = (...args) => {
 const match =
   value =>
   (...args) => {
-    if (value === undefined || value === null) return null
-
     if (args.length % 2 !== 0)
       throw new Error('[match]: number of arguments must be even')
 
@@ -228,6 +262,8 @@ const match =
     return typeof defaultExpr === 'function' ? defaultExpr(value) : defaultExpr
   }
 
-match.Any = MatchAny
+match.any = MatchAny
+match.cond = pred =>
+  new MatchCond(pred, typeof pred === 'function' && pred.call)
 
 export default match
