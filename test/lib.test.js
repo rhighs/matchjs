@@ -83,14 +83,14 @@ test('match deeply nested objects', _ => {
       firstName: String,
       lastName: 'baz',
       points: [{
-        x: 10, y: match.Any
+        x: 10, y: match.any
       }]
     },
     ({ firstName, points: [{ y }] }) => `${firstName} is at y: ${y}`,
 
     { 
       firstName: String,
-      lastName: match.Any
+      lastName: match.any
     },
     ({ firstName, lastName }) => `${firstName} has last name: ${lastName}`,
 
@@ -103,7 +103,7 @@ test('match deeply nested objects', _ => {
     {
       timeMetrics: {
         range: {
-          from: match.Any,
+          from: match.any,
           to: 100,
         },
         units: String,
@@ -124,7 +124,7 @@ test('match deeply nested objects', _ => {
 
     [
       {
-        timeMetrics: match.Any,
+        timeMetrics: match.any,
       }
     ], ([{ timeMetrics }]) => `timeMetrics: ${timeMetrics}`,
 
@@ -201,7 +201,7 @@ test('match complex arrays (with objects and arrays)', _ => {
     [
         {
             name: String,
-            height: { value: match.Any, unit: 'cm' }
+            height: { value: match.any, unit: 'cm' }
         }
     ], matched =>
         'people with height in cm have names: ' + matched.map(({ name }) => name).join(', '),
@@ -238,7 +238,7 @@ test('match complex arrays (with objects and arrays)', _ => {
 
     [
         [
-            { x: match.Any }
+            { x: match.any }
         ]
     ], _ => console.log('can\'t happen'),
 
@@ -247,3 +247,62 @@ test('match complex arrays (with objects and arrays)', _ => {
 
   assert.equal(result, '2, 2, 4')
 })
+
+test('match with condition expressions', _ => {
+  let testObject = {
+    name: 'foo',
+    height: 181,
+    age: 23
+  }
+
+  // prettier-ignore
+  let result = match(testObject) (
+    {
+      name: String,
+      height: match.cond(v => v > 170),
+      age: match.cond(v => v > 20)
+    },
+    ({ name }) => name,
+
+    null, _ => 'default case'
+  )
+  assert.equal(result, 'foo')
+
+  testObject = {
+      name: 'bar',
+      age: 20
+  }
+
+  // prettier-ignore
+  result = match(testObject) (
+    {
+      name: String,
+      age: match.cond(v => v % 2 === 0)
+    },
+    ({ name, age }) => `${name} has even age of ${age}`,
+
+    null, _ => 'default case'
+  )
+  assert.equal(result, 'bar has even age of 20')
+})
+
+test('match for edge cases (null, undefined, empty arrays, empty objects)', _ => {
+  let results = [
+    [[], 'found []'],
+    [{}, 'found {}'],
+    [null, 'found null'],
+    [undefined, 'found undefined'],
+  ]
+
+  for (const [value, expected] of results) {
+    const result = match(value) (
+      [], _ => 'found []',
+      {}, _ => 'found {}',
+      null, _ => 'found null',
+      undefined, _ => 'found undefined'
+    )
+
+    assert.equal(result, expected)
+  }
+})
+

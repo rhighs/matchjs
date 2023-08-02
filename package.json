@@ -1,14 +1,14 @@
 {
   "name": "matchjs",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Pattern matching for javascript",
   "main": "lib.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "node test/*.test.js"
+    "test": "node ./test/*.test.js"
   },
   "repository": {
     "type": "git",
