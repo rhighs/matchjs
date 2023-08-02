@@ -4,7 +4,13 @@
 
 ## Installation
 
-To use the **matchjs** library in your project, you can include the `match.js` file directly:
+To use the **matchjs** library in your project use your package manager of choice or include the `lib.js` file directly:
+
+```bash
+$ npm install --save matchjs
+```
+
+or
 
 ```html
 <script src="path/to/lib.js"></script>
