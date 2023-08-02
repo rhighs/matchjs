@@ -92,13 +92,13 @@ result = match(testObject) (
   {
     firstName: String,
     lastName: 'baz',
-    points: [{ x: 10, y: match.Any }]
+    points: [{ x: 10, y: match.any }]
   },
   ({ firstName, points: [{ y }] }) => `${firstName} is at y: ${y}`,
 
   {
     firstName: String,
-    lastName: match.Any
+    lastName: match.any
   },
   ({ firstName, lastName }) => `${firstName} has last name: ${lastName}`,
 
@@ -129,12 +129,58 @@ result = match(complexArray) (
   [[{ x: 10, y: Number }]],
   matched => matched.reduce((acc, v) => ([...acc, ...v.map(({ y }) => y)]), []).join(', '),
 
-  [[{ x: match.Any }]],
+  [[{ x: match.any }]],
   _ => console.log("Can't happen"),
 
   null, _ => 'default case'
 ) 
 console.log(result)  // Output: "2, 2, 4"
+
+// Example 6: match with conditions on numerical fields (match.cond)
+const testObject = {
+  name: 'Alice',
+  height: 185,
+  age: 35,
+  occupation: 'Software Engineer'
+}
+
+const result = match(testObject) (
+  {
+    name: String,
+    height: match.cond(v => v > 170),
+    age: match.cond(v => v >= 30),
+    occupation: String
+  },
+  ({ name, height, age, occupation }) => `${name} is ${height}cm tall, ${age} years old, and works as a ${occupation}.`,
+
+  null, _ => 'default case'
+)
+
+console.log(result)
+// Output: "Alice is 185cm tall, 35 years old, and works as a Software Engineer."
+
+// Example 7: match with conditions on any other condition that you want with match.cond!
+const testObject = {
+  name: 'Bob',
+  age: 25,
+  city: 'New York',
+  interests: ['Gaming', 'Reading', 'Cooking']
+}
+
+const result = match(testObject) (
+  {
+    name: String,
+    city: String,
+    age: match.cond(v => v < 30),
+    interests: match.cond(v => Array.isArray(v) && v.length > 2)
+  },
+  ({ name, age, interests }) => `${name} is ${age} years old and has diverse interests: ${interests.join(', ')}.`,
+
+  null, _ => 'default case'
+)
+
+console.log(result)
+// Output: "Bob is 25 years old and has diverse interests: Gaming, Reading, Cooking."
 ```
 
 ## License
