@@ -1,5 +1,5 @@
 {
-  "name": "matchjs",
+  "name": "@rhighs/matchjs",
   "type": "module",
   "version": "1.0.2",
   "description": "Pattern matching for javascript",
