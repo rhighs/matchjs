@@ -114,14 +114,16 @@ const resolveMatchingStructure = (patternStruct, againstStruct) => {
     return out
   }
 
-  if (typeof patternStruct === 'object' && typeof againstStruct === 'object')
-    return Object.keys(patternStruct).reduce(
-      (acc, k) => ({
-        ...acc,
-        [k]: resolveMatchingStructure(patternStruct[k], againstStruct[k])
-      }),
-      {}
-    )
+  if (typeof patternStruct === 'object' && typeof againstStruct === 'object') {
+    const keys = Object.keys(patternStruct)
+    const result = {}
+    for (let i = 0; i < keys.length; i++)
+      result[keys[i]] = resolveMatchingStructure(
+        patternStruct[keys[i]],
+        againstStruct[keys[i]]
+      )
+    return result
+  }
 
   return againstStruct
 }
