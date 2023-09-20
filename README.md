@@ -320,6 +320,7 @@ Here some benchmark tests to grossly evaluate the performance of the **matchjs**
     "city": "Los Angeles"
   }
 }
+```
 
 | Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples   |
 |------------|-----------------------|--------------------|----------|-----------|
