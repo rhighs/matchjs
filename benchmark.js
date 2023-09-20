@@ -228,11 +228,75 @@ const slightlyComplexObject_benchmark = async _ => {
   return { name: 'slightly complex object', table: bench.table() }
 }
 
+const complexObject_benchmark = async () => {
+  const bench = new Bench({ time: 100 });
+
+  const data = {
+    user: {
+      name: 'Alice',
+      age: 30,
+      email: 'alice@example.com',
+    },
+    orders: [
+      { id: 1, total: 50 },
+      { id: 2, total: 75 },
+      { id: 3, total: 100 },
+    ],
+    address: {
+      street: '123 Main St',
+      city: 'Los Angeles',
+    },
+  };
+
+  bench
+    .add('matchjs', () => {
+      // prettier-ignore
+      const result = match(data)(
+        {
+          user: {
+            name: String,
+            age: Number,
+            email: String,
+          },
+          orders: match.any,
+          address: {
+            city: 'Los Angeles',
+          },
+        }, ({ user: { name, age }, orders }) => `User ${name} is ${age} years old. Number of orders: ${orders.length}`,
+
+        {}, _ => 'nothing matched'
+      );
+      return result;
+    })
+    .add('vanilla', () => {
+      let result = 'No match found';
+
+      if (
+        data.user &&
+        typeof data.user.name === 'string' &&
+        typeof data.user.age === 'number' &&
+        typeof data.user.email === 'string' &&
+        Array.isArray(data.orders) &&
+        data.address &&
+        data.address.city === 'Los Angeles'
+      ) {
+        result = `User ${data.user.name} is ${data.user.age} years old. Number of orders: ${data.orders.length}`;
+      }
+
+      return result;
+    });
+
+  await bench.run();
+
+  return { name: 'complex object', table: bench.table() };
+};
+
 ;(async () => {
   const results = await Promise.all([
     simpleObject_benchmark(),
     shortArray_benchmark(),
-    slightlyComplexObject_benchmark()
+    slightlyComplexObject_benchmark(),
+    complexObject_benchmark()
   ])
   for (let result of results) {
     console.log(`[ ${result.name} ]`)
