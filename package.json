@@ -1,7 +1,7 @@
 {
   "name": "@rhighs/matchjs",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Pattern matching for javascript",
   "main": "lib.js",
   "directories": {
