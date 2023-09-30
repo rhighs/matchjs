@@ -189,6 +189,144 @@ console.log(result)
 // Output: "Bob is 25 years old and has diverse interests: Gaming, Reading, Cooking."
 ```
 
+## Benchmark
+
+Here some benchmark tests to grossly evaluate the performance of the **matchjs** library compared to a vanilla JavaScript approach in various scenarios using the following data as reference:
+
+### Simple Object
+
+```json
+{
+  "firstName": "foo",
+  "lastName": "bar",
+  "age": 23,
+  "hobbies": ["sport", "food", "development", "books"]
+}
+```
+
+| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples   |
+|------------|-----------------------|--------------------|----------|-----------|
+| 'matchjs'  | 239,356               | 4,177.87           | ±3.78%   | 23,936    |
+| 'vanilla'  | 12,498,274            | 80.01              | ±2.66%   | 1,249,828 |
+
+### Short Array
+
+```json
+[
+  {
+    "name": "rob",
+    "age": 22,
+    "extra": [
+      {
+        "type": "weight",
+        "unit": "kg",
+        "weight": 86
+      },
+      {
+        "type": "movies",
+        "favorites": ["A great film", "Bridge of Spies"]
+      }
+    ]
+  },
+  {
+    "name": "jose",
+    "age": 27,
+    "extra": [
+      {
+        "type": "weight",
+        "unit": "kg",
+        "weight": 67
+      },
+      {
+        "type": "songs",
+        "favorites": ["Pink Floyd - The Great Gig in the Sky", "Megadeth - Angry Again"]
+      }
+    ]
+  },
+  {
+    "name": "michael",
+    "age": 61,
+    "extra": [
+      {
+        "type": "weight",
+        "unit": "kg",
+        "weight": 112
+      },
+      {
+        "type": "videogames",
+        "favorites": null
+      }
+    ]
+  }
+]
+```
+
+| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples |
+|------------|-----------------------|--------------------|----------|---------|
+| 'matchjs'  | 138,189               | 7,236.43           | ±3.28%   | 13,821  |
+| 'vanilla'  | 2,729,522             | 366.36             | ±3.91%   | 274,151 |
+
+### Slightly Complex Object
+
+```json
+{
+  "name": "Alice Johnson",
+  "age": 28,
+  "address": {
+    "street": "456 Elm St",
+    "city": "Los Angeles",
+    "zipcode": "90001",
+    "coordinates": {
+      "latitude": 34.0522,
+      "longitude": -118.2437
+    }
+  },
+  "email": "alice@example.com",
+  "hobbies": ["Painting", "Cooking"],
+  "friends": [
+    {
+      "name": "Emma",
+      "age": 26
+    },
+    {
+      "name": "James",
+      "age": 29
+    }
+  ]
+}
+```
+
+| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples |
+|------------|-----------------------|--------------------|----------|---------|
+| 'matchjs'  | 309,017               | 3,236.06           | ±2.83%   | 30,902  |
+| 'vanilla'  | 7,635,976             | 130.96             | ±1.40%   | 763,599 |
+
+### Complex Object
+
+```json
+{
+  "user": {
+    "name": "Alice",
+    "age": 30,
+    "email": "alice@example.com"
+  },
+  "orders": [
+    { "id": 1, "total": 50 },
+    { "id": 2, "total": 75 },
+    { "id": 3, "total": 100 }
+  ],
+  "address": {
+    "street": "123 Main St",
+    "city": "Los Angeles"
+  }
+}
+```
+
+| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples   |
+|------------|-----------------------|--------------------|----------|-----------|
+| 'matchjs'  | 429,609               | 2,327.70           | ±2.04%   | 42,961    |
+| 'vanilla'  | 14,270,423            | 70.08              | ±1.25%   | 1,427,043 |
+
 ## License
 
 This project is licensed under the [MIT License]('./LICENSE.md')

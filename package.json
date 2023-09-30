@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/rhighs/matchjs/issues"
   },
-  "homepage": "https://github.com/rhighs/matchjs#readme"
+  "homepage": "https://github.com/rhighs/matchjs#readme",
+  "devDependencies": {
+    "tinybench": "^2.5.1"
+  }
 }
