@@ -1,41 +1,41 @@
-import { test } from 'node:test'
-import assert from 'node:assert'
-import match from '../lib.js'
+import { test } from "node:test";
+import assert from "node:assert";
+import match from "../lib.js";
 
-test('match simple objects and primitves', _ => {
+test("match simple objects and primitves", (_) => {
   // prettier-ignore
-  let result = match(42) (
+  let result = match(
     42, 'Pattern 1',
     null, 'default case'
-  )
-  assert.equal(result, 'Pattern 1')
+  )(42)
+  assert.equal(result, "Pattern 1");
 
   // prettier-ignore
-  result = match('Hello') (
+  result = match(
     Number, 'Pattern 2',
     String, 'Pattern 3',
     null,   'default case'
-  )
-  assert.equal(result, 'Pattern 3')
+  )('Hello')
+  assert.equal(result, "Pattern 3");
 
   // prettier-ignore
-  result = match('Hello') (
+  result = match(
     Number, 'Pattern 2',
     'Hello', 'Pattern 3',
     null,   'default case'
-  )
-  assert.equal(result, 'Pattern 3')
+  )('Hello')
+  assert.equal(result, "Pattern 3");
 
   // prettier-ignore
-  result = match (true) (
+  result = match (
     true,   'Pattern 4',
     false,  'Pattern 5',
     null,   'default case'
-  )
-  assert.equal(result, 'Pattern 4')
+  )(true)
+  assert.equal(result, "Pattern 4");
 
   // prettier-ignore
-  result = match({ type: 'square', side: 4 }) (
+  result = match(
     {
       type: 'square',
       side: Number
@@ -49,36 +49,36 @@ test('match simple objects and primitves', _ => {
     shape => `Area of circle: ${Math.PI * shape.radius ** 2}`,
 
     null, _ => 'default case'
-  )
-  assert.equal(result, 'Area of square: 16')
-})
+  )({ type: 'square', side: 4 })
+  assert.equal(result, "Area of square: 16");
+});
 
-test('match deeply nested objects', _ => {
+test("match deeply nested objects", (_) => {
   const testObject = {
-    firstName: 'foo',
-    lastName: 'baz',
+    firstName: "foo",
+    lastName: "baz",
     points: [
       {
         x: 10,
-        y: 12
+        y: 12,
       },
       {
         x: 0,
-        y: 1
-      }
+        y: 1,
+      },
     ],
     timeMetrics: {
       range: {
         from: 0,
-        to: 100
+        to: 100,
       },
-      units: 'seconds',
-      target: 12
-    }
-  }
+      units: "seconds",
+      target: 12,
+    },
+  };
 
   // prettier-ignore
-  let result = match(testObject) (
+  let result = match(
     {
       firstName: String,
       lastName: 'baz',
@@ -95,11 +95,11 @@ test('match deeply nested objects', _ => {
     ({ firstName, lastName }) => `${firstName} has last name: ${lastName}`,
 
     null, _ => 'default case'
-  )
-  assert.equal(result, 'foo is at y: 12')
+  )(testObject)
+  assert.equal(result, "foo is at y: 12");
 
   // prettier-ignore
-  result = match(testObject) (
+  result = match(
     {
       timeMetrics: {
         range: {
@@ -129,18 +129,18 @@ test('match deeply nested objects', _ => {
     ], ([{ timeMetrics }]) => `timeMetrics: ${timeMetrics}`,
 
     null, _ => 'default case'
-  )
+  )(testObject)
   assert.equal(
     result,
-    'to reach 100 in 12 seconds we need to start at position 0'
-  )
-})
+    "to reach 100 in 12 seconds we need to start at position 0"
+  );
+});
 
-test('match simple arrays', _ => {
-  let testObject = [...Array.from({ length: 10 }).map((_, i) => i)]
+test("match simple arrays", (_) => {
+  let testObject = [...Array.from({ length: 10 }).map((_, i) => i)];
 
   // prettier-ignore
-  let result = match(testObject) (
+  let result = match(
         [
             1, 2, 3
         ], ([one, two, three]) => `${one} ${two} ${three}`,
@@ -154,11 +154,11 @@ test('match simple arrays', _ => {
         ], matched => matched,
         
         null, _ => 'default'
-    )
-  assert.equal(result, `1 2 3`)
+    )(testObject)
+  assert.equal(result, `1 2 3`);
 
   // prettier-ignore
-  result = match(testObject.map(v => v += 10)) (
+  result = match(
         [
             1, 2, 3
         ], ([one, two, three]) => `${one} ${two} ${three}`,
@@ -172,28 +172,28 @@ test('match simple arrays', _ => {
         ], matched => matched,
         
         null, _ => 'default'
-    )
-  assert.equal(result, `11 + 12`)
-})
+    )(testObject.map(v => v += 10))
+  assert.equal(result, `11 + 12`);
+});
 
-test('match complex arrays (with objects and arrays)', _ => {
+test("match complex arrays (with objects and arrays)", (_) => {
   let testObject = [
     {
-      name: 'foo',
-      height: { value: 183, unit: 'cm' }
+      name: "foo",
+      height: { value: 183, unit: "cm" },
     },
     {
-      name: 'bar',
-      height: { value: 6, unit: 'ft' }
+      name: "bar",
+      height: { value: 6, unit: "ft" },
     },
     {
-      name: 'baz',
-      height: { value: 172, unit: 'cm' }
-    }
-  ]
+      name: "baz",
+      height: { value: 172, unit: "cm" },
+    },
+  ];
 
   // prettier-ignore
-  let result = match(testObject) (
+  let result = match(
     [
         1
     ], _ => 'can\'t happen',
@@ -207,29 +207,29 @@ test('match complex arrays (with objects and arrays)', _ => {
         'people with height in cm have names: ' + matched.map(({ name }) => name).join(', '),
     
     null, _ => 'default case'
-  )
-  assert.equal(result, 'people with height in cm have names: foo, baz')
+  )(testObject)
+  assert.equal(result, "people with height in cm have names: foo, baz");
 
   testObject = [
     [
       { x: 2, y: 1 },
-      { x: 10, y: 2 }
+      { x: 10, y: 2 },
     ],
     [
       { x: 7, y: 3 },
-      { x: 10, y: 2 }
+      { x: 10, y: 2 },
     ],
     [
       { x: 10, y: 4 },
       { x: 11, y: 0 },
       { x: 12, y: 6 },
       { x: 13, y: 9 },
-      { x: 14, y: 2 }
-    ]
-  ]
+      { x: 14, y: 2 },
+    ],
+  ];
 
   // prettier-ignore
-  result = match (testObject) (
+  result = match (
     [
         [
             { x: 10, y: Number }
@@ -243,20 +243,20 @@ test('match complex arrays (with objects and arrays)', _ => {
     ], _ => console.log('can\'t happen'),
 
     null, _ => 'default case'
-  )
+  )(testObject)
 
-  assert.equal(result, '2, 2, 4')
-})
+  assert.equal(result, "2, 2, 4");
+});
 
-test('match with condition expressions', _ => {
+test("match with condition expressions", (_) => {
   let testObject = {
-    name: 'foo',
+    name: "foo",
     height: 181,
-    age: 23
-  }
+    age: 23,
+  };
 
   // prettier-ignore
-  let result = match(testObject) (
+  let result = match(
     {
       name: String,
       height: match.cond(v => v > 170),
@@ -265,16 +265,16 @@ test('match with condition expressions', _ => {
     ({ name }) => name,
 
     null, _ => 'default case'
-  )
-  assert.equal(result, 'foo')
+  )(testObject)
+  assert.equal(result, "foo");
 
   testObject = {
-    name: 'bar',
-    age: 20
-  }
+    name: "bar",
+    age: 20,
+  };
 
   // prettier-ignore
-  result = match(testObject) (
+  result = match(
     {
       name: String,
       age: match.cond(v => v % 2 === 0)
@@ -282,27 +282,27 @@ test('match with condition expressions', _ => {
     ({ name, age }) => `${name} has even age of ${age}`,
 
     null, _ => 'default case'
-  )
-  assert.equal(result, 'bar has even age of 20')
-})
+  )(testObject)
+  assert.equal(result, "bar has even age of 20");
+});
 
-test('match for edge cases (null, undefined, empty arrays, empty objects)', _ => {
+test("match for edge cases (null, undefined, empty arrays, empty objects)", (_) => {
   let results = [
-    [[], 'found []'],
-    [{}, 'found {}'],
-    [null, 'found null'],
-    [undefined, 'found undefined']
-  ]
+    [[], "found []"],
+    [{}, "found {}"],
+    [null, "found null"],
+    [undefined, "found undefined"],
+  ];
 
   // prettier-ignore
   for (const [value, expected] of results) {
-    const result = match(value) (
+    const result = match(
       [], _ => 'found []',
       {}, _ => 'found {}',
       null, _ => 'found null',
       undefined, _ => 'found undefined'
-    )
+    )(value) 
 
     assert.equal(result, expected)
   }
-})
+});

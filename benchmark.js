@@ -1,20 +1,20 @@
-import { Bench } from 'tinybench'
-import match from './lib.js'
+import { Bench } from "tinybench";
+import match from "./lib.js";
 
 const simpleObject_benchmark = async () => {
-  const bench = new Bench({ time: 100 })
+  const bench = new Bench({ time: 100 });
 
   const data = {
-    firstName: 'foo',
-    lastName: 'bar',
+    firstName: "foo",
+    lastName: "bar",
     age: 23,
-    hobbies: ['sport', 'food', 'development', 'books']
-  }
+    hobbies: ["sport", "food", "development", "books"],
+  };
 
   bench
-    .add('matchjs', _ => {
+    .add("matchjs", (_) => {
       // prettier-ignore
-      const result = match(data)(
+      const result = match(
                 {
                     firstName: String,
                     lastName: match.any,
@@ -28,85 +28,85 @@ const simpleObject_benchmark = async () => {
                 }, _ => "it's foo!",
 
                 {}, _ => ''
-            )
+            ) (data)
 
-      return result
+      return result;
     })
-    .add('vanilla', _ => {
-      let result = ''
+    .add("vanilla", (_) => {
+      let result = "";
 
-      if (typeof data?.firstName === 'string') {
+      if (typeof data?.firstName === "string") {
         if (
-          typeof data?.lastName === 'string' &&
-          data.hobbies?.includes('sport') &&
-          data.hobbies?.includes('food')
+          typeof data?.lastName === "string" &&
+          data.hobbies?.includes("sport") &&
+          data.hobbies?.includes("food")
         ) {
-          result = "it's foo!"
-        } else if (data?.lastName && data.hobbies?.includes('hiking')) {
-          result = "it's john!"
+          result = "it's foo!";
+        } else if (data?.lastName && data.hobbies?.includes("hiking")) {
+          result = "it's john!";
         }
       }
 
-      return result
-    })
+      return result;
+    });
 
-  await bench.run()
+  await bench.run();
 
-  return { name: 'simple object', table: bench.table() }
-}
+  return { name: "simple object", table: bench.table() };
+};
 
 const shortArray_benchmark = async () => {
-  const bench = new Bench({ time: 100 })
+  const bench = new Bench({ time: 100 });
 
   const data = [
     {
-      name: 'rob',
+      name: "rob",
       age: new Date().getFullYear() - 2000,
       extra: [
         {
-          type: 'weight',
-          unit: 'kg',
-          weight: 86
+          type: "weight",
+          unit: "kg",
+          weight: 86,
         },
-        { type: 'movies', favorites: ['A great film', 'Bridge of Spies'] }
-      ]
+        { type: "movies", favorites: ["A great film", "Bridge of Spies"] },
+      ],
     },
     {
-      name: 'jose',
+      name: "jose",
       age: new Date().getFullYear() - 1995,
       extra: [
         {
-          type: 'weight',
-          unit: 'kg',
-          weight: 67
+          type: "weight",
+          unit: "kg",
+          weight: 67,
         },
         {
-          type: 'songs',
+          type: "songs",
           favorites: [
-            'Pink Floyd - The Great Gig in the Sky',
-            'Megadeth - Angry Again'
-          ]
-        }
-      ]
+            "Pink Floyd - The Great Gig in the Sky",
+            "Megadeth - Angry Again",
+          ],
+        },
+      ],
     },
     {
-      name: 'michael',
+      name: "michael",
       age: new Date().getFullYear() - 1962,
       extra: [
         {
-          type: 'weight',
-          unit: 'kg',
-          weight: 112
+          type: "weight",
+          unit: "kg",
+          weight: 112,
         },
-        { type: 'videogames', favorites: null }
-      ]
-    }
-  ]
+        { type: "videogames", favorites: null },
+      ],
+    },
+  ];
 
   bench
-    .add('matchjs', _ => {
+    .add("matchjs", (_) => {
       // prettier-ignore
-      const result = match(data) (
+      const result = match(
             [{
                 name: undefined,
                 age: Number,
@@ -122,71 +122,71 @@ const shortArray_benchmark = async () => {
             Array, _ => `matching any array`,
 
             {}, _ => `nothing matched`
-      )
-      return result
+      )(data)
+      return result;
     })
-    .add('vanilla', _ => {
-      let result = `nothing matched`
+    .add("vanilla", (_) => {
+      let result = `nothing matched`;
 
       for (let d of data) {
-        if (!d.name && typeof d.age === 'number' && d.extra) {
-          result = `this any data has age: ${d.age}`
+        if (!d.name && typeof d.age === "number" && d.extra) {
+          result = `this any data has age: ${d.age}`;
         } else if (
-          typeof d.name === 'string' &&
+          typeof d.name === "string" &&
           d.age > 20 &&
           Array.isArray(d.extra) &&
           d.extra.some(
-            item => item.type === 'movies' && Array.isArray(item.favorites)
+            (item) => item.type === "movies" && Array.isArray(item.favorites)
           )
         ) {
           const favorites = d.extra.find(
-            item => item.type === 'movies'
-          ).favorites
-          if (favorites) result = `${d.name} likes movies: ${favorites}`
+            (item) => item.type === "movies"
+          ).favorites;
+          if (favorites) result = `${d.name} likes movies: ${favorites}`;
         }
       }
 
-      return result
-    })
+      return result;
+    });
 
-  await bench.run()
+  await bench.run();
 
-  return { name: 'short array', table: bench.table() }
-}
+  return { name: "short array", table: bench.table() };
+};
 
-const slightlyComplexObject_benchmark = async _ => {
-  const bench = new Bench({ time: 100 })
+const slightlyComplexObject_benchmark = async (_) => {
+  const bench = new Bench({ time: 100 });
 
   const data = {
-    name: 'Alice Johnson',
+    name: "Alice Johnson",
     age: 28,
     address: {
-      street: '456 Elm St',
-      city: 'Los Angeles',
-      zipcode: '90001',
+      street: "456 Elm St",
+      city: "Los Angeles",
+      zipcode: "90001",
       coordinates: {
         latitude: 34.0522,
-        longitude: -118.2437
-      }
+        longitude: -118.2437,
+      },
     },
-    email: 'alice@example.com',
-    hobbies: ['Painting', 'Cooking'],
+    email: "alice@example.com",
+    hobbies: ["Painting", "Cooking"],
     friends: [
       {
-        name: 'Emma',
-        age: 26
+        name: "Emma",
+        age: 26,
       },
       {
-        name: 'James',
-        age: 29
-      }
-    ]
-  }
+        name: "James",
+        age: 29,
+      },
+    ],
+  };
 
   bench
-    .add('matchjs', _ => {
+    .add("matchjs", (_) => {
       // prettier-ignore
-      const result = match(data) (
+      const result = match(
       {
         age: Number,
         address: { 
@@ -202,40 +202,40 @@ const slightlyComplexObject_benchmark = async _ => {
       }, ({ age }) => `Manuel's friend is ${age}yo`,
 
       {}, _ => `nothing matched`
-    )
+    )(data)
 
-      return result
+      return result;
     })
-    .add('vanilla', _ => {
-      let result = null
+    .add("vanilla", (_) => {
+      let result = null;
 
       if (
-        typeof data?.age === 'number' &&
+        typeof data?.age === "number" &&
         data.address?.coordinates?.latitude > 30 &&
         data.address?.coordinates?.latitude < 40
       )
-        result = `found coordinates: ${data.address.coordinates} with age: ${data.age}`
+        result = `found coordinates: ${data.address.coordinates} with age: ${data.age}`;
       else if (
         data?.age > 30 &&
-        data?.friends?.filter(v => v.name === 'Manuel').length === 1
+        data?.friends?.filter((v) => v.name === "Manuel").length === 1
       )
-        result = `Manuel's friend is ${data.age}yoo`
+        result = `Manuel's friend is ${data.age}yoo`;
 
-      return result
-    })
+      return result;
+    });
 
-  await bench.run()
-  return { name: 'slightly complex object', table: bench.table() }
-}
+  await bench.run();
+  return { name: "slightly complex object", table: bench.table() };
+};
 
 const complexObject_benchmark = async () => {
   const bench = new Bench({ time: 100 });
 
   const data = {
     user: {
-      name: 'Alice',
+      name: "Alice",
       age: 30,
-      email: 'alice@example.com',
+      email: "alice@example.com",
     },
     orders: [
       { id: 1, total: 50 },
@@ -243,15 +243,15 @@ const complexObject_benchmark = async () => {
       { id: 3, total: 100 },
     ],
     address: {
-      street: '123 Main St',
-      city: 'Los Angeles',
+      street: "123 Main St",
+      city: "Los Angeles",
     },
   };
 
   bench
-    .add('matchjs', () => {
+    .add("matchjs", () => {
       // prettier-ignore
-      const result = match(data)(
+      const result = match(
         {
           user: {
             name: String,
@@ -265,20 +265,20 @@ const complexObject_benchmark = async () => {
         }, ({ user: { name, age }, orders }) => `User ${name} is ${age} years old. Number of orders: ${orders.length}`,
 
         {}, _ => 'nothing matched'
-      );
+      )(data);
       return result;
     })
-    .add('vanilla', () => {
-      let result = 'No match found';
+    .add("vanilla", () => {
+      let result = "No match found";
 
       if (
         data.user &&
-        typeof data.user.name === 'string' &&
-        typeof data.user.age === 'number' &&
-        typeof data.user.email === 'string' &&
+        typeof data.user.name === "string" &&
+        typeof data.user.age === "number" &&
+        typeof data.user.email === "string" &&
         Array.isArray(data.orders) &&
         data.address &&
-        data.address.city === 'Los Angeles'
+        data.address.city === "Los Angeles"
       ) {
         result = `User ${data.user.name} is ${data.user.age} years old. Number of orders: ${data.orders.length}`;
       }
@@ -288,18 +288,18 @@ const complexObject_benchmark = async () => {
 
   await bench.run();
 
-  return { name: 'complex object', table: bench.table() };
+  return { name: "complex object", table: bench.table() };
 };
 
-;(async () => {
+(async () => {
   const results = await Promise.all([
     simpleObject_benchmark(),
     shortArray_benchmark(),
     slightlyComplexObject_benchmark(),
-    complexObject_benchmark()
-  ])
+    complexObject_benchmark(),
+  ]);
   for (let result of results) {
-    console.log(`[ ${result.name} ]`)
-    console.table(result.table)
+    console.log(`[ ${result.name} ]`);
+    console.table(result.table);
   }
-})()
+})();

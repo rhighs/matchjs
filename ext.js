@@ -1,4 +1,4 @@
-import match from './lib.js'
+import match from "./lib.js";
 
 /**
  * Matches the receiver object against specified patterns.
@@ -7,8 +7,8 @@ import match from './lib.js'
  * @returns {any} The result of matching against the patterns.
  */
 Object.prototype.matchme = function (...patterns) {
-  return match(Object(this))(...patterns);
-}
+  return match(...patterns)(Object(this));
+};
 
 /**
  * Matches each element in an array against specified patterns.
@@ -16,8 +16,9 @@ Object.prototype.matchme = function (...patterns) {
  * @param {...any} patterns - The patterns to match against the array elements.
  */
 Array.prototype.matchme = function (...patterns) {
-  Array.prototype.forEach.call(this, value => match(value)(...patterns));
-}
+  const matcher = match(...patterns);
+  Array.prototype.forEach.call(this, (value) => matcher(value));
+};
 
 /**
  * Matches a number against specified patterns.
@@ -26,8 +27,8 @@ Array.prototype.matchme = function (...patterns) {
  * @returns {any} The result of matching against the patterns.
  */
 Number.prototype.matchme = function (...patterns) {
-  return match(Number(this))(...patterns);
-}
+  return match(...patterns)(Number(this));
+};
 
 /**
  * Matches a string against specified patterns.
@@ -36,5 +37,5 @@ Number.prototype.matchme = function (...patterns) {
  * @returns {any} The result of matching against the patterns.
  */
 String.prototype.matchme = function (...patterns) {
-  return match(String(this))(...patterns);
-}
+  return match(...patterns)(String(this));
+};

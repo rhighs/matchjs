@@ -1,68 +1,60 @@
 # matchjs
 
-**matchjs** is a JavaScript library that enables pattern matching based on value types or structures. It provides a `match` function that allows for pattern matching and conditional execution of expressions based on the matching patterns.
+A simple library that enables pattern matching based on value types or structure patterns.
 
-## Installation
-
-To use the **matchjs** library in your project use your package manager of choice or include the `lib.js` file directly:
+## Installing
 
 ```bash
 $ npm install --save @rhighs/matchjs
 ```
 
-or
-
 ```html
 <script src="path/to/lib.js"></script>
 ```
 
-## Function: `match(value)`
+## Examples
 
-The `match` function allows pattern matching based on the value type or structure.
+```js
+const match = require('@rhighs/matchjs')
 
-- `value` (any): The value to be matched against patterns.
+const value = { name: 'Rob', age: 23 } 
+const result = match(
+  { name: 'Rob' },
+  _ => 'Hello, Rob!',
 
-**Returns**: (Function) Returns a function that takes pairs of patterns and expressions for pattern matching.
+  { age: 23 },
+  _ => 'You are 23 years old!',
 
-## Usage
+  null, _ => 'No match found!'
+)(value) 
 
-Below is an example of how you can use the **matchjs** library:
+console.log(result) 
+> Hello, Rob!
+```
 
-```javascript
-const value = { name: 'John', age: 30 } 
-
-// Example 1: Simple objects
-const result = match(value) (
-  { name: 'John' },
-  _ => 'Hello, John!', // Expression 1
-
-  { age: 25 },
-  _ => 'You are 25 years old!', // Expression 2
-
-  null, _ => 'No match found!' // Default expression
-) 
-
-console.log(result)  // Output: "Hello, John!"
-
-// Example 2: Simple primitives and default case
-let result = match(42) (
-  42, 'Pattern 1', // expression or callable function
+```js
+const result = match(
+  42, 'Pattern 1',
   null, _ => 'default case'
-) 
-console.log(result)  // Output: "Pattern 1"
+)(42)
 
-result = match('Hello') (
+console.log(result) 
+> Pattern 1
+```
+
+```js
+const result = match(
   Number, 'Pattern 2',
   String, 'Pattern 3',
   null, 'default case'
-) 
-console.log(result)  // Output: "Pattern 3"
+)('Hello')  
 
-// Example 3: Complex objects with nested matching
-result = match({
-  type: 'square',
-  side: 4
-}) (
+console.log(result)
+> Pattern 3
+```
+
+```js
+const result = match(
   {
     type: 'square',
     side: Number
@@ -76,10 +68,16 @@ result = match({
   shape => `Area of circle: ${Math.PI * shape.radius ** 2}`,
 
   null, 'default case'
-) 
-console.log(result)  // Output: "Area of square: 16"
+)({
+  type: 'square',
+  side: 4
+})  
 
-// Example 4: Deeply nested objects
+console.log(result)
+> Area of square: 16
+```
+
+```js
 const testObject = {
   firstName: 'foo',
   lastName: 'baz',
@@ -94,7 +92,7 @@ const testObject = {
   }
 } 
 
-result = match(testObject) (
+const result = match(
   {
     firstName: String,
     lastName: 'baz',
@@ -109,10 +107,13 @@ result = match(testObject) (
   ({ firstName, lastName }) => `${firstName} has last name: ${lastName}`,
 
   null, _ => 'default case'
-) 
-console.log(result)  // Output: "foo is at y: 12"
+)(testObject)  
 
-// Example 5: Complex arrays with objects and nested matching
+console.log(result)
+> foo is at y: 12
+```
+
+```js
 const complexArray = [
   [
     { x: 2, y: 1 },
@@ -131,7 +132,7 @@ const complexArray = [
   ]
 ] 
 
-result = match(complexArray) (
+const result = match(
   [[{ x: 10, y: Number }]],
   matched => matched.reduce((acc, v) => ([...acc, ...v.map(({ y }) => y)]), []).join(', '),
 
@@ -139,10 +140,13 @@ result = match(complexArray) (
   _ => console.log("Can't happen"),
 
   null, _ => 'default case'
-) 
-console.log(result)  // Output: "2, 2, 4"
+)(complexArray)  
 
-// Example 6: match with conditions on numerical fields (match.cond)
+console.log(result)
+> 2, 2, 4
+```
+
+```js
 const testObject = {
   name: 'Alice',
   height: 185,
@@ -150,7 +154,7 @@ const testObject = {
   occupation: 'Software Engineer'
 }
 
-const result = match(testObject) (
+const result = match(
   {
     name: String,
     height: match.cond(v => v > 170),
@@ -160,20 +164,21 @@ const result = match(testObject) (
   ({ name, height, age, occupation }) => `${name} is ${height}cm tall, ${age} years old, and works as a ${occupation}.`,
 
   null, _ => 'default case'
-)
+)(testObject)
 
 console.log(result)
-// Output: "Alice is 185cm tall, 35 years old, and works as a Software Engineer."
+> Alice is 185cm tall, 35 years old, and works as a Software Engineer.
+```
 
-// Example 7: match with conditions on any other condition that you want with match.cond!
+```js
 const testObject = {
-  name: 'Bob',
-  age: 25,
-  city: 'New York',
+  name: 'Rob',
+  age: 23,
+  city: 'Lucerne',
   interests: ['Gaming', 'Reading', 'Cooking']
 }
 
-const result = match(testObject) (
+const result = match(
   {
     name: String,
     city: String,
@@ -183,150 +188,8 @@ const result = match(testObject) (
   ({ name, age, interests }) => `${name} is ${age} years old and has diverse interests: ${interests.join(', ')}.`,
 
   null, _ => 'default case'
-)
+)(testObject)
 
 console.log(result)
-// Output: "Bob is 25 years old and has diverse interests: Gaming, Reading, Cooking."
+> Rob is 23 years old and has diverse interests: Gaming, Reading, Cooking.
 ```
-
-## Benchmark
-
-Here some benchmark tests to grossly evaluate the performance of the **matchjs** library compared to a vanilla JavaScript approach in various scenarios using the following data as reference:
-
-### Simple Object
-
-```json
-{
-  "firstName": "foo",
-  "lastName": "bar",
-  "age": 23,
-  "hobbies": ["sport", "food", "development", "books"]
-}
-```
-
-| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples   |
-|------------|-----------------------|--------------------|----------|-----------|
-| 'matchjs'  | 239,356               | 4,177.87           | ±3.78%   | 23,936    |
-| 'vanilla'  | 12,498,274            | 80.01              | ±2.66%   | 1,249,828 |
-
-### Short Array
-
-```json
-[
-  {
-    "name": "rob",
-    "age": 22,
-    "extra": [
-      {
-        "type": "weight",
-        "unit": "kg",
-        "weight": 86
-      },
-      {
-        "type": "movies",
-        "favorites": ["A great film", "Bridge of Spies"]
-      }
-    ]
-  },
-  {
-    "name": "jose",
-    "age": 27,
-    "extra": [
-      {
-        "type": "weight",
-        "unit": "kg",
-        "weight": 67
-      },
-      {
-        "type": "songs",
-        "favorites": ["Pink Floyd - The Great Gig in the Sky", "Megadeth - Angry Again"]
-      }
-    ]
-  },
-  {
-    "name": "michael",
-    "age": 61,
-    "extra": [
-      {
-        "type": "weight",
-        "unit": "kg",
-        "weight": 112
-      },
-      {
-        "type": "videogames",
-        "favorites": null
-      }
-    ]
-  }
-]
-```
-
-| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples |
-|------------|-----------------------|--------------------|----------|---------|
-| 'matchjs'  | 138,189               | 7,236.43           | ±3.28%   | 13,821  |
-| 'vanilla'  | 2,729,522             | 366.36             | ±3.91%   | 274,151 |
-
-### Slightly Complex Object
-
-```json
-{
-  "name": "Alice Johnson",
-  "age": 28,
-  "address": {
-    "street": "456 Elm St",
-    "city": "Los Angeles",
-    "zipcode": "90001",
-    "coordinates": {
-      "latitude": 34.0522,
-      "longitude": -118.2437
-    }
-  },
-  "email": "alice@example.com",
-  "hobbies": ["Painting", "Cooking"],
-  "friends": [
-    {
-      "name": "Emma",
-      "age": 26
-    },
-    {
-      "name": "James",
-      "age": 29
-    }
-  ]
-}
-```
-
-| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples |
-|------------|-----------------------|--------------------|----------|---------|
-| 'matchjs'  | 309,017               | 3,236.06           | ±2.83%   | 30,902  |
-| 'vanilla'  | 7,635,976             | 130.96             | ±1.40%   | 763,599 |
-
-### Complex Object
-
-```json
-{
-  "user": {
-    "name": "Alice",
-    "age": 30,
-    "email": "alice@example.com"
-  },
-  "orders": [
-    { "id": 1, "total": 50 },
-    { "id": 2, "total": 75 },
-    { "id": 3, "total": 100 }
-  ],
-  "address": {
-    "street": "123 Main St",
-    "city": "Los Angeles"
-  }
-}
-```
-
-| Task Name  | Operations per Second | Average Time (ns)  | Margin   | Samples   |
-|------------|-----------------------|--------------------|----------|-----------|
-| 'matchjs'  | 429,609               | 2,327.70           | ±2.04%   | 42,961    |
-| 'vanilla'  | 14,270,423            | 70.08              | ±1.25%   | 1,427,043 |
-
-## License
-
-This project is licensed under the [MIT License]('./LICENSE.md')
